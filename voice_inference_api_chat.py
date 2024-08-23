@@ -1,5 +1,6 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.responses import StreamingResponse
+from starlette.middleware.cors import CORSMiddleware
 from transformers import WhisperProcessor, WhisperForConditionalGeneration, VitsModel, AutoTokenizer
 import torchaudio
 import torch
@@ -13,7 +14,19 @@ from llama_index.core.chat_engine import SimpleChatEngine
 from llama_index.llms.openai import OpenAI
 import logging
 
+origins = [
+    "https://voiceagentapi.meancloud.in/",
+]
+
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)

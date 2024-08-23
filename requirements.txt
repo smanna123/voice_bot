@@ -11,4 +11,8 @@ python-multipart
 fastapi
 uvicorn
 openai
+torchaudio
+scipy
+python-dotenv
+llama-index
 PyAudio
