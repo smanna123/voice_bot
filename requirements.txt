@@ -1,0 +1,11 @@
+PyAudio
+transformers
+torch
+accelerate
+bitsandbytes
+soundfile
+datasets
+sentencepiece
+bark
+optimum
+python-multipart
