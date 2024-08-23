@@ -15,12 +15,13 @@ app = FastAPI()
 load_dotenv()
 openai_api_key = os.getenv("OPENAI_API_KEY")
 
+device = "cpu"
 # Load Whisper model and processor
 processor = WhisperProcessor.from_pretrained("whisper_tiny")
-whisper_model = WhisperForConditionalGeneration.from_pretrained("whisper_tiny")
+whisper_model = WhisperForConditionalGeneration.from_pretrained("whisper_tiny").to(device)
 
 # Load Vits model for TTS
-vits_model = VitsModel.from_pretrained("tts")
+vits_model = VitsModel.from_pretrained("tts").to(device)
 tokenizer = AutoTokenizer.from_pretrained("tts")
 
 
@@ -44,7 +45,8 @@ async def process_audio(file: UploadFile = File(...)):
         messages=[
             {"role": "system", "content": "You are a helpful assistant."},
             {"role": "user", "content": transcription}
-        ]
+        ],
+        max_tokens=250
     )
     answer = completion.choices[0].message.content
 

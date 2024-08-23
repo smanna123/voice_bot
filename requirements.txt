@@ -1,4 +1,3 @@
-PyAudio
 transformers
 torch
 accelerate
@@ -9,3 +8,7 @@ sentencepiece
 bark
 optimum
 python-multipart
+fastapi
+uvicorn
+openai
+PyAudio
