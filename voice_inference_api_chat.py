@@ -15,7 +15,7 @@ from llama_index.llms.openai import OpenAI
 import logging
 
 origins = [
-    "https://voiceagentapi.meancloud.in/",
+    "https://voice-assistant-react.vercel.app/",
 ]
 
 app = FastAPI()
