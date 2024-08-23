@@ -9,11 +9,14 @@ import io
 import os
 from dotenv import load_dotenv
 from openai import OpenAI
+from llama_index.core.chat_engine import SimpleChatEngine
+from llama_index.llms.openai import OpenAI
 
 app = FastAPI()
 
 load_dotenv()
 openai_api_key = os.getenv("OPENAI_API_KEY")
+llm = OpenAI(temperature=0.5, model="gpt-3.5-turbo")
 
 device = "cpu"
 # Load Whisper model and processor
@@ -39,16 +42,9 @@ async def process_audio(file: UploadFile = File(...)):
     transcription = processor.batch_decode(predicted_ids, skip_special_tokens=True)[0]
 
     # Generate response using OpenAI
-    client = OpenAI(api_key=openai_api_key)
-    completion = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": transcription}
-        ],
-        max_tokens=250
-    )
-    answer = completion.choices[0].message.content
+    chat_engine = SimpleChatEngine.from_defaults(llm=llm)
+    answer = str(chat_engine.chat(transcription))
+
     # Synthesize response to audio
     inputs = tokenizer(answer, return_tensors="pt")
     with torch.no_grad():
@@ -63,4 +59,3 @@ async def process_audio(file: UploadFile = File(...)):
 
     # Return audio stream
     return StreamingResponse(audio_bytes, media_type="audio/wav")
-
