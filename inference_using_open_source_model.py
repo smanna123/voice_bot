@@ -102,8 +102,8 @@ print(tokenizer.decode(outputs[0]))
 # try:
 #     processor = WhisperProcessor.from_pretrained("whisper_tiny")
 #     whisper_model = WhisperForConditionalGeneration.from_pretrained("whisper_tiny").to(device)
-#     vits_model = VitsModel.from_pretrained("tts").to(device)
-#     tokenizer = AutoTokenizer.from_pretrained("tts")
+#     vits_model = VitsModel.from_pretrained("tts-test").to(device)
+#     tokenizer = AutoTokenizer.from_pretrained("tts-test")
 # except Exception as e:
 #     logger.error(f"Failed to load models: {e}")
 #     raise HTTPException(status_code=500, detail="Model loading failed")

@@ -1,4 +1,4 @@
-/tts/
+/tts-test/
 /user_voice/
 /whisper_tiny/
 .env
@@ -8,3 +8,4 @@ __pycache__/
 test.wav
 refer.wav
 .DS_Store
+/tts/

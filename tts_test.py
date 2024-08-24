@@ -17,8 +17,8 @@ torch.set_num_threads(8)
 
 # Set up the model and tokenizer
 device = "cpu"
-model = ParlerTTSForConditionalGeneration.from_pretrained("tts").to(device)
-tokenizer = AutoTokenizer.from_pretrained("tts")
+model = ParlerTTSForConditionalGeneration.from_pretrained("tts-test").to(device)
+tokenizer = AutoTokenizer.from_pretrained("tts-test")
 
 # Define prompt and description for a single sentence
 prompt = "hi, how are you?"

@@ -14,39 +14,35 @@ from llama_index.core.chat_engine import SimpleChatEngine
 from llama_index.llms.openai import OpenAI
 import logging
 
-origins = [
-    "https://voice-assistant-react.vercel.app/",
-]
+# Set environment variables to maximize CPU usage
+os.environ["OMP_NUM_THREADS"] = "16"  # Adjust this as per the number of CPU cores available
+os.environ["TF_NUM_INTEROP_THREADS"] = "16"
+os.environ["TF_NUM_INTRAOP_THREADS"] = "16"
 
+# Setup CORS, logging, and FastAPI app
+origins = ["https://voice-assistant-react.vercel.app/"]
 app = FastAPI()
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows all origins
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],  # Allows all methods
-    allow_headers=["*"],  # Allows all headers
+    allow_methods=["*"],
+    allow_headers=["*"]
 )
-
-# Setup logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Load environment variables
+# Load environment variables and validate
 load_dotenv()
 openai_api_key = os.getenv("OPENAI_API_KEY")
 if not openai_api_key:
     logger.error("OPENAI_API_KEY is not set in the environment variables.")
     raise ValueError("OPENAI_API_KEY is required")
 
-BROADIFI_WRITING_ASSISTANT = """\
-You are a Broadifi Voice Assistant. You are powered by Broadifi AI team. \
-You help people come up with creative ideas and content and your answer \
-will be very compact and to the point and minimal.
-”
-"""
+# System prompt for LLM
+BROADIFI_WRITING_ASSISTANT = "You are a Broadifi Voice Assistant powered by the Broadifi AI team. You help people come up with creative ideas and content with compact and to-the-point answers."
 
-# Setup the models
+# Setup the models on CPU
 device = "cpu"
 try:
     processor = WhisperProcessor.from_pretrained("whisper_tiny")
@@ -63,7 +59,7 @@ llm = OpenAI(temperature=0.5, model="gpt-3.5-turbo")
 @app.post("/process_audio/")
 async def process_audio(file: UploadFile = File(...)):
     try:
-        # Read audio file
+        # Read and process audio file asynchronously
         contents = await file.read()
         audio_stream = io.BytesIO(contents)
         waveform, sample_rate = torchaudio.load(audio_stream)
@@ -81,8 +77,7 @@ async def process_audio(file: UploadFile = File(...)):
         inputs = tokenizer(answer, return_tensors="pt")
         with torch.no_grad():
             output = vits_model(**inputs).waveform
-        audio_data = output.squeeze().numpy()
-        audio_data = np.int16(audio_data * 32767)
+        audio_data = np.int16(output.squeeze().numpy() * 32767)
 
         # Prepare audio data for response
         audio_bytes = io.BytesIO()
@@ -94,4 +89,3 @@ async def process_audio(file: UploadFile = File(...)):
     except Exception as e:
         logger.error(f"An error occurred during audio processing: {e}")
         raise HTTPException(status_code=500, detail="Error processing the audio file")
-

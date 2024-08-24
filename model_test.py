@@ -4,8 +4,8 @@
 #
 # device = "cpu"
 #
-# model = ParlerTTSForConditionalGeneration.from_pretrained("tts").to(device)
-# tokenizer = AutoTokenizer.from_pretrained("tts")
+# model = ParlerTTSForConditionalGeneration.from_pretrained("tts-test").to(device)
+# tokenizer = AutoTokenizer.from_pretrained("tts-test")
 #
 #
 # prompt = """Bayesian statistics constitute one of the not-so-conventional subareas within statistics, based on a
@@ -42,8 +42,8 @@
 #
 # # Set up the model and tokenizer
 # device = "cpu"
-# model = ParlerTTSForConditionalGeneration.from_pretrained("parler-tts/parler-tts-mini-expresso").to(device)
-# tokenizer = AutoTokenizer.from_pretrained("parler-tts/parler-tts-mini-expresso")
+# model = ParlerTTSForConditionalGeneration.from_pretrained("parler-tts-test/parler-tts-test-mini-expresso").to(device)
+# tokenizer = AutoTokenizer.from_pretrained("parler-tts-test/parler-tts-test-mini-expresso")
 #
 # # Define prompt and description
 # prompt = """hi, how are you?
@@ -87,7 +87,7 @@
 #
 # # Initialize the TTS model
 # try:
-#     tts = TTS("tts_models/multilingual/multi-dataset/xtts_v2", gpu=False)
+#     tts-test = TTS("tts_models/multilingual/multi-dataset/xtts_v2", gpu=False)
 # except Exception as e:
 #     print(f"Failed to initialize TTS model: {e}")
 #     exit(1)
@@ -109,7 +109,7 @@
 #     output_file_path = f"output_{i}.wav"
 #     start_time = time.time()
 #     try:
-#         tts.tts_to_file(
+#         tts-test.tts_to_file(
 #             text=text,
 #             file_path=output_file_path,
 #             speaker_wav=reference_speaker_file,

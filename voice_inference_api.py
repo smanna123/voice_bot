@@ -21,8 +21,8 @@ processor = WhisperProcessor.from_pretrained("whisper_tiny")
 whisper_model = WhisperForConditionalGeneration.from_pretrained("whisper_tiny").to(device)
 
 # Load Vits model for TTS
-vits_model = VitsModel.from_pretrained("tts").to(device)
-tokenizer = AutoTokenizer.from_pretrained("tts")
+vits_model = VitsModel.from_pretrained("tts-test").to(device)
+tokenizer = AutoTokenizer.from_pretrained("tts-test")
 
 
 @app.post("/process_audio/")
