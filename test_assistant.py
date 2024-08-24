@@ -9,7 +9,9 @@ import numpy as np
 import io
 import os
 from dotenv import load_dotenv
+from parler_tts import ParlerTTSForConditionalGeneration
 from openai import OpenAI
+from llama_index.core.prompts.system import SHAKESPEARE_WRITING_ASSISTANT
 from llama_index.core.chat_engine import SimpleChatEngine
 from llama_index.llms.openai import OpenAI
 import logging
@@ -35,9 +37,6 @@ logger = logging.getLogger(__name__)
 # Load environment variables
 load_dotenv()
 openai_api_key = os.getenv("OPENAI_API_KEY")
-if not openai_api_key:
-    logger.error("OPENAI_API_KEY is not set in the environment variables.")
-    raise ValueError("OPENAI_API_KEY is required")
 
 BROADIFI_WRITING_ASSISTANT = """\
 You are a Broadifi Voice Assistant. You are powered by Broadifi AI team. \
@@ -45,6 +44,10 @@ You help people come up with creative ideas and content and your answer \
 will be very compact and to the point and minimal.
 ”
 """
+
+if not openai_api_key:
+    logger.error("OPENAI_API_KEY is not set in the environment variables.")
+    raise ValueError("OPENAI_API_KEY is required")
 
 # Setup the models
 device = "cpu"
@@ -60,6 +63,7 @@ except Exception as e:
 # Initialize the LLM
 llm = OpenAI(temperature=0.5, model="gpt-3.5-turbo")
 
+
 @app.post("/process_audio/")
 async def process_audio(file: UploadFile = File(...)):
     try:
@@ -69,7 +73,8 @@ async def process_audio(file: UploadFile = File(...)):
         waveform, sample_rate = torchaudio.load(audio_stream)
 
         # Transcribe audio using Whisper
-        input_features = processor(waveform.squeeze().numpy(), sampling_rate=sample_rate, return_tensors="pt").input_features
+        input_features = processor(waveform.squeeze().numpy(), sampling_rate=sample_rate,
+                                   return_tensors="pt").input_features
         predicted_ids = whisper_model.generate(input_features)
         transcription = processor.batch_decode(predicted_ids, skip_special_tokens=True)[0]
 
@@ -94,4 +99,3 @@ async def process_audio(file: UploadFile = File(...)):
     except Exception as e:
         logger.error(f"An error occurred during audio processing: {e}")
         raise HTTPException(status_code=500, detail="Error processing the audio file")
-
