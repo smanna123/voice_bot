@@ -44,11 +44,36 @@ model = AutoModelForCausalLM.from_pretrained(checkpoint, quantization_config=qua
 
 messages = [{"role": "user", "content": transcription[0]}]
 input_text=tokenizer.apply_chat_template(messages, tokenize=False)
-print(input_text)
+#print(input_text)
 inputs = tokenizer.encode(input_text, return_tensors="pt").to(device)
-outputs = model.generate(inputs, max_new_tokens=150, temperature=0.2, top_p=0.9, do_sample=True)
-print(tokenizer.decode(outputs[0]))
+max_length = inputs.shape[-1] + 200
+outputs = model.generate(
+    inputs,
+    max_length=max_length,
+    temperature=0.3,  # Adjusted temperature for more coherent answers
+    top_p=0.75,       # Sampling method for controlling randomness
+    do_sample=True
+)
+decoded_output = tokenizer.decode(outputs[0], skip_special_tokens=True)
+start_token = "assistant"
+if start_token in decoded_output:
+    answer = decoded_output.split(start_token, 1)[-1].strip()
+else:
+    answer = decoded_output.strip()
 
+# Post-process to remove incomplete sentence
+# if len(answer) > 0 and not answer.endswith(('.', '!', '?')):
+#     last_punct = max(answer.rfind(punct) for punct in ('.', '!', '?'))
+#     if last_punct != -1:
+#         answer = answer[:last_punct+1].strip()  # Trim to last complete sentence
+
+# Remove incomplete sentences if necessary
+if len(answer) > 0 and not answer.endswith(('.', '!', '?')):
+    last_punct = max(answer.rfind(punct) for punct in ('.', '!', '?'))
+    if last_punct != -1:
+        answer = answer[:last_punct+1].strip()
+
+print(answer)
 # from transformers import SpeechT5Processor, SpeechT5ForTextToSpeech, SpeechT5HifiGan
 # import torch
 # import soundfile as sf
