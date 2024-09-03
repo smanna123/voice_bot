@@ -37,7 +37,7 @@ if not openai_api_key:
     raise ValueError("OPENAI_API_KEY is required")
 
 # System prompt for LLM
-BROADIFI_WRITING_ASSISTANT = ("You are a Brodefy Voice Assistant powered by the Brodefy AI team. Provide answer of "
+BROADIFI_WRITING_ASSISTANT = ("You are a Brodify Voice Assistant powered by the Brodify AI team. Provide answer of "
                               "user query in a single line and informative and compact, always answer in single line.")
 
 # Setup the models on CPU
