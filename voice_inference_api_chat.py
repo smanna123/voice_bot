@@ -40,8 +40,8 @@ if not openai_api_key:
     raise ValueError("OPENAI_API_KEY is required")
 
 # System prompt for LLM
-BROADIFI_WRITING_ASSISTANT = ("You are a Broadifi Voice Assistant powered by the Broadifi AI team. You help people "
-                              "come up with creative ideas and content with compact and to-the-point answers.")
+BROADIFI_WRITING_ASSISTANT = ("You are a Broadifi Voice Assistant powered by the Broadifi AI team. Provide answer of "
+                              "user query in a single line and informative and compact, always answer in single line.")
 
 # Setup the models on CPU
 device = "cpu"
