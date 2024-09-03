@@ -40,7 +40,8 @@ if not openai_api_key:
     raise ValueError("OPENAI_API_KEY is required")
 
 # System prompt for LLM
-BROADIFI_WRITING_ASSISTANT = "You are a Broadifi Voice Assistant powered by the Broadifi AI team. You help people come up with creative ideas and content with compact and to-the-point answers."
+BROADIFI_WRITING_ASSISTANT = ("You are a Broadifi Voice Assistant powered by the Broadifi AI team. You help people "
+                              "come up with creative ideas and content with compact and to-the-point answers.")
 
 # Setup the models on CPU
 device = "cpu"
@@ -56,6 +57,7 @@ except Exception as e:
 # Initialize the LLM
 llm = OpenAI(temperature=0.5, model="gpt-3.5-turbo")
 
+
 @app.post("/process_audio/")
 async def process_audio(file: UploadFile = File(...)):
     try:
@@ -65,9 +67,11 @@ async def process_audio(file: UploadFile = File(...)):
         waveform, sample_rate = torchaudio.load(audio_stream)
 
         # Transcribe audio using Whisper
-        input_features = processor(waveform.squeeze().numpy(), sampling_rate=sample_rate, return_tensors="pt").input_features
+        input_features = processor(waveform.squeeze().numpy(), sampling_rate=sample_rate,
+                                   return_tensors="pt").input_features
         predicted_ids = whisper_model.generate(input_features)
         transcription = processor.batch_decode(predicted_ids, skip_special_tokens=True)[0]
+        print(transcription)
 
         # Generate response using OpenAI
         chat_engine = SimpleChatEngine.from_defaults(system_prompt=BROADIFI_WRITING_ASSISTANT, llm=llm)
@@ -89,6 +93,3 @@ async def process_audio(file: UploadFile = File(...)):
     except Exception as e:
         logger.error(f"An error occurred during audio processing: {e}")
         raise HTTPException(status_code=500, detail="Error processing the audio file")
-
-
-
