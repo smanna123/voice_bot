@@ -1,14 +1,17 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.responses import StreamingResponse
 from starlette.middleware.cors import CORSMiddleware
-from transformers import WhisperProcessor, WhisperForConditionalGeneration
+from transformers import WhisperProcessor, WhisperForConditionalGeneration, VitsModel, AutoTokenizer
 import torchaudio
+import torch
+import scipy.io.wavfile
+import numpy as np
 import io
 import os
 from dotenv import load_dotenv
-from llama_index.llms.openai import OpenAI
+from openai import OpenAI
 from llama_index.core.chat_engine import SimpleChatEngine
-from gtts import gTTS
+from llama_index.llms.openai import OpenAI
 import logging
 
 # Set environment variables to maximize CPU usage
@@ -43,8 +46,10 @@ BROADIFI_WRITING_ASSISTANT = ("You are a Broadifi Voice Assistant powered by the
 # Setup the models on CPU
 device = "cpu"
 try:
-    processor = WhisperProcessor.from_pretrained("whisper_tiny")
-    whisper_model = WhisperForConditionalGeneration.from_pretrained("whisper_tiny").to(device)
+    processor = WhisperProcessor.from_pretrained("whisper_small-hin")
+    whisper_model = WhisperForConditionalGeneration.from_pretrained("whisper_small-hin").to(device)
+    vits_model = VitsModel.from_pretrained("tts_hin").to(device)
+    tokenizer = AutoTokenizer.from_pretrained("tts_hin")
 except Exception as e:
     logger.error(f"Failed to load models: {e}")
     raise HTTPException(status_code=500, detail="Model loading failed")
@@ -72,10 +77,15 @@ async def process_audio(file: UploadFile = File(...)):
         chat_engine = SimpleChatEngine.from_defaults(system_prompt=BROADIFI_WRITING_ASSISTANT, llm=llm)
         answer = str(chat_engine.chat(transcription))
 
-        # Synthesize response to audio using gTTS
-        tts = gTTS(text=answer, lang='en', tld='co.in')
+        # Synthesize response to audio
+        inputs = tokenizer(answer, return_tensors="pt")
+        with torch.no_grad():
+            output = vits_model(**inputs).waveform
+        audio_data = np.int16(output.squeeze().numpy() * 32767)
+
+        # Prepare audio data for response
         audio_bytes = io.BytesIO()
-        tts.write_to_fp(audio_bytes)
+        scipy.io.wavfile.write(audio_bytes, rate=vits_model.config.sampling_rate, data=audio_data)
         audio_bytes.seek(0)
 
         # Return audio stream

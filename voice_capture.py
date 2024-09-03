@@ -53,4 +53,4 @@ def record_audio(duration, output_filename):
     print(f"Audio saved as {WAVE_OUTPUT_FILENAME}")
 
 # Example usage
-record_audio(4, "output.wav")
+record_audio(3, "output.wav")

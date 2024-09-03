@@ -10,3 +10,5 @@ refer.wav
 .DS_Store
 /tts/
 /chat_model/
+/tts_hin/
+/whisper_small-hin/
